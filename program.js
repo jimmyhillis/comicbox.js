@@ -10,9 +10,20 @@ String.prototype.trim = function() {
 	return this.replace(/^s+|\s+$/g, '');
 }
 
+// Simple write function which will allow me to
+// write directly to my prettified HTML markup.
+// Hack, but was sick of looking at an ugly page!
+document.write = function(str) {
+	var content = document.getElementById('content');
+	var element = document.createElement('p');
+	element.innerHTML = str;
+	content.appendChild(element);
+}
+
 // Start building an APP of objects (Comics, Series, etc.)
 var COMICBOX = {}
 
+// Object format for a single comic issue
 COMICBOX.Comic = function(series, issue, year) {
 	return {
 		'series': series || 'Amazing Spider-Man',
@@ -23,25 +34,29 @@ COMICBOX.Comic = function(series, issue, year) {
 		}
 	}
 }
-// Add a series listing to the Application
-COMICBOX.list_series = function() {
-	document.writeln('<ul>');
-	// Loop through each series and spit out the name
-	for (var i = COMICBOX.comic_series.length - 1; i >= 0; i--) {
-		document.writeln('<li>' + COMICBOX.comic_series[i].getTitle() + '</li>');
-	};
-	document.writeln('</ul>');
-}
 
+// Object format for a Comic Book Series (eg. The Amazing Spider-Man (1999))
 COMICBOX.Series = function(name, year, publisher) {
 	return {
 		'name': name,
 		'year': year,
 		'publisher': publisher,
 		'getTitle': function() {
-			return this.name + '(' + this.year + ')';
+			return this.name + ' (' + this.year + ')';
 		}
 	}
+}
+
+// Add a series listing to the Application
+COMICBOX.list_series = function() {
+	var list = "";
+	list += '<ul>';
+	// Loop through each series and spit out the name
+	for (var i = COMICBOX.comic_series.length - 1; i >= 0; i--) {
+		list += '<li>' + COMICBOX.comic_series[i].getTitle() + '</li>';
+	};
+	list += '</ul>';
+	document.write(list);
 }
 
 // Create an array of Comic series
@@ -51,12 +66,11 @@ COMICBOX.comic_series = new Array(
 		new COMICBOX.Series('Fantastic Four', 1962, 'Marvel')
 );
 
-// Run some code based on all the COMICBOX methods that I've written
+// MAIN CODE AND TESTS FOR THE ABOVE CODE
 
-COMICBOX.list_series();
-
-c = new COMICBOX.Comic(COMICBOX.comic_series[1], 2);
-document.writeln(c.getTitle().trim() + '<br />');
-
-d = new COMICBOX.Comic(COMICBOX.comic_series[2], 24, 1972);
-document.writeln(d.getTitle().trim());
+COMICBOX.main = function() {
+	COMICBOX.list_series();
+	c = new COMICBOX.Comic(COMICBOX.comic_series[1], 2);
+	document.write(c.getTitle().trim() + '<br />');
+	d = new COMICBOX.Comic(COMICBOX.comic_series[2], 24, 1972);
+}();
