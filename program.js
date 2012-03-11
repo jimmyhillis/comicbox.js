@@ -23,6 +23,9 @@ document.write = function(str) {
 // Start building an APP of objects (Comics, Series, etc.)
 var COMICBOX = {}
 
+// Create array of comics (basically the "database")
+COMICBOX.comics = [];
+
 // Object format for a single comic issue
 COMICBOX.Comic = function(series, issue, year) {
 	return {
@@ -30,7 +33,7 @@ COMICBOX.Comic = function(series, issue, year) {
 		'issue': issue || 1,
 		'year': year || 1969,
 		'getTitle': function() {
-			return this.series.getTitle() + ' #' + this.issue;
+			return ((typeof this.series === "object") ? this.series.getTitle() : this.series) + ' #' + this.issue;
 		}
 	}
 }
@@ -66,11 +69,37 @@ COMICBOX.comic_series = new Array(
 		new COMICBOX.Series('Fantastic Four', 1962, 'Marvel')
 );
 
+// UX HANDLERS
+
+var newComic = document.getElementById('new_comic_record');
+// Add listener for a submit, and make sure no page reload happens
+newComic.onsubmit = function() {
+	console.log('New record, let\'s start here!');
+	var existing_series = null;
+	COMICBOX.comic_series.forEach(function(element,index) { 
+		if(element.name =)
+	});
+	//var series_index = null;
+	// Check if Series string is already in our series
+	//if(series_index = COMICBOX.series.indexOf(this.new_series.value) > 0) {
+	//	console.log('Found it!');
+	//}
+
+	// Add new record to the comic book array
+	COMICBOX.comics.push(new COMICBOX.Comic(this.new_series.value, this.new_issue.value));
+	// Display the title to the end of our list
+	document.write(COMICBOX.comics[2].getTitle().trim() + '<br />');
+	// Stop browser acting on submit with page refresh
+	return false;
+}
+
 // MAIN CODE AND TESTS FOR THE ABOVE CODE
 
 COMICBOX.main = function() {
 	COMICBOX.list_series();
-	c = new COMICBOX.Comic(COMICBOX.comic_series[1], 2);
-	document.write(c.getTitle().trim() + '<br />');
-	d = new COMICBOX.Comic(COMICBOX.comic_series[2], 24, 1972);
+	COMICBOX.comics.push(new COMICBOX.Comic(COMICBOX.comic_series[1], 2));
+	COMICBOX.comics.push(new COMICBOX.Comic(COMICBOX.comic_series[2], 24, 1972));
+	for (var i = COMICBOX.comics.length - 1; i >= 0; i--) {
+		document.write(COMICBOX.comics[i].getTitle().trim() + '<br />');
+	};
 }();
