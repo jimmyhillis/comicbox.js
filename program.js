@@ -71,25 +71,36 @@ COMICBOX.comic_series = new Array(
 
 // UX HANDLERS
 
+// Load specific requirements
 var newComic = document.getElementById('new_comic_record');
-// Add listener for a submit, and make sure no page reload happens
-newComic.onsubmit = function() {
-	console.log('New record, let\'s start here!');
-	var existing_series = null;
-	COMICBOX.comic_series.forEach(function(element,index) { 
-		if(element.name =)
-	});
-	//var series_index = null;
-	// Check if Series string is already in our series
-	//if(series_index = COMICBOX.series.indexOf(this.new_series.value) > 0) {
-	//	console.log('Found it!');
-	//}
+var newComicSubmit = document.getElementById('new_comic');
+var newComicElements = newComic.elements;
 
-	// Add new record to the comic book array
-	COMICBOX.comics.push(new COMICBOX.Comic(this.new_series.value, this.new_issue.value));
+// Add listener for a submit, and make sure no page reload happens
+var newComicCallback = function() {
+	console.log('New record, let\'s start here!');
+	var existing_series = false;
+	COMICBOX.comic_series.forEach(function(element,index) { 
+		if(element.name === newComicElements.new_series.value) {
+			existing_series = index;
+		}
+	});
+	if(existing_series === false) {
+		existing_series = COMICBOX.comic_series.push(new COMICBOX.Series(newComicElements.new_series.value, newComicElements.new_year.value)) - 1;
+	}
+	// Add new comic to the database
+	var new_comic_id = COMICBOX.comics.push(new COMICBOX.Comic(COMICBOX.comic_series[existing_series].name, newComicElements.new_issue.value, newComicElements.new_year.value));
 	// Display the title to the end of our list
-	document.write(COMICBOX.comics[2].getTitle().trim() + '<br />');
+	document.write(COMICBOX.comics[new_comic_id-1].getTitle().trim() + '<br />');
 	// Stop browser acting on submit with page refresh
+	return false;
+}
+
+// Attach events to form listeners to the submit button
+// and cancel out the form from refreshing, if there is a
+// JS error
+newComic.new_comic.onclick = newComicCallback;
+newComic.onsubmit = function() {
 	return false;
 }
 
