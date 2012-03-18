@@ -72,7 +72,7 @@ h1 {font-size:2em; font-weight:500;}
 legend {text-transform:uppercase;font-weight:500;padding-bottom:10px;}
 #mainwrap {background:#eee; margin:0 auto; width:90%; min-width:400px; padding:2%; box-shadow: 0px 5px 10px 2px #ccc;}
 #content {margin: 2%; padding:2%; background:#ddd; font-family:'inconsolata','courier new',fixed;font-size:0.9em;line-height:1em;height:100%;overflow: hidden;}
-#add_record { width: 30%; float: right; }
+#add_record { float: right; }
 #add_record label { display: block; padding: 3px 0; color:#000; }
 #add_record label:after { content:':'; }
 
