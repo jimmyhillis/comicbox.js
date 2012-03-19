@@ -18,7 +18,7 @@ Last Update: 19/03/2012
 // Default settings for loading the JSComicBox app
 var s = { 'output_element':'content' };
 
-(function JsComicBox(settings) {
+var app = (function JsComicBox(settings) {
 
 	var comicbox = {}, 
 		comics = [], // array of comics in your personal
@@ -65,45 +65,19 @@ var s = { 'output_element':'content' };
 		return this.name + ' [' + this.year + ']';
 	}
 
-	// !=== UX HANDLERS -- SHOULD NOT BE IN THIS APP? === */
+	/* == COMIC BOX PUBLIC METHODS == */
 
-	// Load specific requirements
-	var newComic = document.getElementById('new_comic_record');
-	var newComicSubmit = document.getElementById('new_comic');
-	var newComicElements = newComic.elements;
-
-	// Add listener for a submit, and make sure no page reload happens
-	var newComicCallback = function() {
-		console.log('New record, let\'s start here!');
-		var existing_series = false;
+	comicbox.add_series = function(name, year, publisher) {
+		// Check if series already exists, and return that if so
 		comic_series.forEach(function(element,index) { 
 			if(element.name === newComicElements.new_series.value) {
-				existing_series = index;
+				return element;
 			}
 		});
-		if(existing_series === false) {
-			existing_series = comic_series.push(
-				new Series(newComicElements.new_series.value, newComicElements.new_year.value)) - 1;
-		}
-		// Add new comic to the database
-		var new_comic_id = comics.push(new Comic(comic_series[existing_series].name, newComicElements.new_issue.value, newComicElements.new_year.value));
-		// Display the title to the end of our list
-		output(comics[new_comic_id-1].getTitle().trim() + '<br />');
-		// Stop browser acting on submit with page refresh
-		return false;
+		// Not found, add a new one
+		index = comic_series.push(new Series(name, year, publisher));
+		return comic_series[index-1];
 	}
-
-	// Attach events to form listeners to the submit button
-	// and cancel out the form from refreshing, if there is a
-	// JS error
-	newComic.new_comic.onclick = newComicCallback;
-	newComic.onsubmit = function() {
-		return false;
-	}
-
-	/* !=== END BAD CODE HERE ===1 */
-
-	/* == COMIC BOX PUBLIC METHODS == */
 
 	// Add a series listing to the Application
 	comicbox.list_series = function() {
@@ -142,4 +116,42 @@ var s = { 'output_element':'content' };
 
 	return comicbox;
 
-}(s)).main();
+}(s));
+
+// Launch the App
+app.main();
+
+/* == UX HANDLERS == */
+// The following code allows me to interface with the JsComicBook
+// application, without having loosley related code inside there.
+// This will split the presentation + the functionality in a more
+// MVC manner (at least it's a start!)
+
+// Load specific requirements
+var newComic = document.getElementById('new_comic_record');
+var newComicElements = newComic.elements;
+
+// Add listener for a submit, and make sure no page reload happens
+var newComicCallback = function() {
+	var title = newComicElements.new_series.value || false,
+		year = newComicElements.new_year.value || false;
+	// Very basic form validation to confirm they are entered
+	if(!title || !year) {
+		alert('You must enter in all fields before adding a new Series');
+		return false;
+	}
+	var newseries = app.add_series(newComicElements.new_series.value, newComicElements.new_year.value);
+	console.log('Added a new Series: ' + newseries.getTitle());
+	return false;
+}
+
+// Attach events to form listeners to the submit button
+// and cancel out the form from refreshing, if there is a
+// JS error
+newComic.new_comic.onclick = newComicCallback;
+// Stop the form from submitting, in the event of a crash
+// on the ADD NEW code, should use TRY/CATCH
+document.getElementById('new_comic').onsubmit = function() {
+	return false;
+}
+
