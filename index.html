@@ -10,19 +10,33 @@
 			<h1>JSComicBox</h1>
 		</header>
 		<section id="content">
+
 			<aside id="add_record">
-				<form id="new_comic_record">
+				<form id="new_records">
 					<fieldset>
-						<legend>New Series</legend>
-						<label for="new_series">Series</label>
-						<input type="text" name="series" id="new_series" maxlength="255" />
+						<legend class="title">New Series</legend>
+						<label for="new_series_name">Title</label>
+						<input type="text" name="name" id="new_series_name" maxlength="255" />
 						<label for="new_year">Year</label>
-						<input type="text" name="year" id="new_year" maxlength="4" />
-						<input type="submit" name="add" id="new_comic" value="Save" />
+						<input type="text" name="year" id="new_series_year" maxlength="4" />
+						<input type="submit" name="add" id="new_series_submit" value="Add" class="button submit" />
+					</fieldset>
+					<fieldset>
+						<legend class="title">New Comic</legend>
+						<label for="new_comic_series">Series</label>
+						<input type="text" name="name" id="new_comic_series" maxlength="255" />
+						<label for="new_year">Issue</label>
+						<input type="text" name="issue" id="new_comic_issue" maxlength="4" />
+						<input type="submit" name="add" id="new_comic_submit" value="Add" class="button submit" />
+					</fieldset>
+					<fieldset id="storage_options">
+						<input type="submit" name="commit" id="commit" value="Save Database" class="button submit" />
 					</fieldset>
 				</form>
 			</aside>
-		</section>
+		
+		</section> <!-- #content -->
+
 		<footer>
 			code by <a href="http://www.twitter.com/#!/ppjim3">@ppjim3</a>
 			<a href="http://github.com/jimmyhillis/">github/jimmyhillis</a>
