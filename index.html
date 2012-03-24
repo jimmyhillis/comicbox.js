@@ -5,42 +5,59 @@
 		<link rel="stylesheet" type="text/css" href="style.css">
 	</head>
 	<body>
-		<div id="mainwrap">
-		<header>
-			<h1>JSComicBox</h1>
+
+		<header id="colophon">
+			Happy Habsburgs
 		</header>
-		<section id="content">
 
-			<aside id="add_record">
-				<form id="new_records">
-					<fieldset>
-						<legend class="title">New Series</legend>
-						<label for="new_series_name">Title</label>
-						<input type="text" name="name" id="new_series_name" maxlength="255" />
-						<label for="new_year">Year</label>
-						<input type="text" name="year" id="new_series_year" maxlength="4" />
-						<input type="submit" name="add" id="new_series_submit" value="Add" class="button submit" />
-					</fieldset>
-					<fieldset>
-						<legend class="title">New Comic</legend>
-						<label for="new_comic_series">Series</label>
-						<input type="text" name="name" id="new_comic_series" maxlength="255" />
-						<label for="new_year">Issue</label>
-						<input type="text" name="issue" id="new_comic_issue" maxlength="4" />
-						<input type="submit" name="add" id="new_comic_submit" value="Add" class="button submit" />
-					</fieldset>
-					<fieldset id="storage_options">
-						<input type="submit" name="commit" id="commit" value="Save Database" class="button submit" />
-					</fieldset>
-				</form>
-			</aside>
-		
-		</section> <!-- #content -->
+		<div id="mainwrap">
+			<header>
+				<h1>JSComicBox</h1>
+			</header>
 
-		<footer>
-			code by <a href="http://www.twitter.com/#!/ppjim3">@ppjim3</a>
-			<a href="http://github.com/jimmyhillis/">github/jimmyhillis</a>
-		</footer>
+			<div id="content">
+
+				<section id="records">
+					<h2 class="title">Your Series</h2>
+				</section> <!-- #content -->
+
+				<aside id="add_record">
+					<form id="new_records">
+						<fieldset>
+							<legend class="title">New Series</legend>
+							<label for="new_series_name">Title</label>
+							<input type="text" name="name" id="new_series_name" maxlength="255" />
+							<label for="new_year">Year</label>
+							<input type="text" name="year" id="new_series_year" maxlength="4" />
+							<input type="submit" name="add" id="new_series_submit" value="Add" class="button submit" />
+						</fieldset>
+						<fieldset>
+							<legend class="title">New Comic</legend>
+							<label for="new_comic_series">Series</label>
+							<input type="text" name="name" id="new_comic_series" maxlength="255" />
+							<label for="new_year">Issue</label>
+							<input type="text" name="issue" id="new_comic_issue" maxlength="4" />
+							<input type="submit" name="add" id="new_comic_submit" value="Add" class="button submit" />
+						</fieldset>
+						<fieldset id="storage_options">
+							<input type="submit" name="commit" id="commit" value="Save Database" class="button submit" />
+							<p>
+								Your database will be saved to this browser and computer only. 
+								Deleting your cache (localStorage) will remove it for good.</p>
+						</fieldset>
+					</form>
+				</aside> <!-- #add_record -->
+
+			</div> <!-- #content -->
+
+			<footer>
+				<a href="http://www.twitter.com/#!/ppjim3">@ppjim3</a>
+				<a href="http://github.com/jimmyhillis/">github/jimmyhillis</a>
+			</footer>
+
+		</div> <!-- mainwrap -->
+
 		<script type="text/javascript" src="program.js"></script>
+	
 	</body>
 </html>

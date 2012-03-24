@@ -14,88 +14,137 @@ Version: 0.1
 Last Update: 19/03/2012
 
 */
-"use_strict"
 
 // Default settings for loading the JSComicBox app
-var s = { 'output_element':'content' };
+var s = { 'output_element': 'records' };
 
 var app = (function JsComicBox(settings) {
-
-	var comicbox = {}, 
+	"use strict";
+	var output, clear, Comic, Series,
+		comicbox = { },
 		comics = [], // array of comics in your personal
 		comic_series = []; // array of comic series e.g. Amazing Spider-Man (1999)
 
-	comicbox._version = "0.1";
-	comicbox._developer = "jimmy.hillis@me.com";
-	comicbox.output_element = (typeof settings.output_element == String) ?
-		settings.output_element :
-		'content';
+	comicbox.version = "0.1";
+	comicbox.developer = "jimmy.hillis@me.com";
+	comicbox.output_element = "records";
 
 	// Function allows me to write simple markup (generally HTML) to the browser
 	// for client + testing purposes
-	var output = function(str) {
+	output = function (str, element) {
 		var content = document.getElementById(comicbox.output_element);
 		var element = document.createElement('p');
 		element.innerHTML = str;
 		content.appendChild(element);
 	}
+	clear = function (element_id) {
+		var element; // DOM element to clear
+		if(typeof element === "undefined") {
+			console.log("Not set, using the default to clear.");
+			element_id = comicbox.output_element;
+		}
+		element = document.getElementById(element_id);
+		element.innerHTML = '';
+	}
 
 	/* == OBJECT TYPES FOR COMIC BOX == */
 
 	// Comic constructor
-	var Comic = function(series, issue, year) {
+	Comic = function (series, issue, year) {
 		this.series = series || 'Amazing Spider-Man',
 		this.issue = issue || 1,
 		this.year = year || 1969
 	}
 	// Return the title of the comic issue based on SERIES #ISSUE {YEAR}
-	Comic.prototype.get_title = function() {
+	Comic.prototype.getTitle = function () {
 		return ((typeof this.series === "object") ? 
-			this.series.get_title() : 
+			this.series.getTitle() : 
 			this.series) + ' #' + this.issue + ' [' + this.year + ']';
 	};
 
 	// Comic series constructor {e.g. The Amazing Spider-Man (1999)}
-	var Series = function(name, year, publisher) {
+	Series = function (name, year, publisher) {
 		this.name = name;
 		this.year = year;
 		this.publisher = publisher;
+		this.comics = [];
 	};
 	// Add prototypal functions to the Comic Series class
-	Series.prototype.get_title = function() {
+	Series.prototype.getTitle = function () {
 		return this.name + ' [' + this.year + ']';
 	}
 
 	/* == COMIC BOX PUBLIC METHODS == */
 
 	// Add a series listing to the comic box
-	comicbox.add_series = function(name, year, publisher) {
+	comicbox.addSeries = function (name, year, publisher) {
+		var new_index, new_series;
 		// Check if series already exists, and return that if so
-		comic_series.forEach(function(element,index) { 
+		comic_series.forEach(function (element, index) { 
 			if(element.name === name) {
 				return element;
 			}
 		});
 		// Not found, add a new one
-		index = comic_series.push(new Series(name, year, publisher));
-		return comic_series[index-1];
+		new_index = comic_series.push(new Series(name, year, publisher));
+		new_series = comic_series[new_index-1];
+		this.orderSeries();
+		return new_series;
 	}
+	// Order all comic series by name
+	comicbox.orderSeries = function (field) {
+		field = typeof field !== "undefined" ? field : "name";
+		console.log('here ' + this['by'+field]);
+		// Sort the Comic Series array by supplied field
+		switch(field) {
+			case "name":
+				comic_series.sort(byName);
+				break;
+			case "year":
+				comic_series.sort(byYear);
+				break;
+			default:
+				break;
+		}
+		return this;
+	}
+	var byYear = function (a, b) {
+		console.log('By Year');
+		if(a.year < b.year) {
+			return 1;
+		} else if(a.year > b.year) {
+			return -1;
+		} else {
+			return 0;
+		}
+	};
+	var byName = function (a, b) {
+		console.log('By Name');
+		if(a.getTitle() < b.getTitle()) {
+			return 1;
+		} else if(a.getTitle() > b.getTitle()) {
+			return -1;
+		} else {
+			return 0;
+		}
+	};
 
 	// Output a list of all the current series
-	comicbox.list_series = function() {
+	comicbox.listSeries = function () {
 		var list = "";
 		list += '<ul>';
 		// Loop through each series and spit out the name
 		for (var i = comic_series.length - 1; i >= 0; i--) {
-			list += '<li>' + comic_series[i].get_title() + '</li>';
+			list += '<li>' + comic_series[i].getTitle() + '</li>';
 		};
 		list += '</ul>';
+		clear();
 		output(list);
 		return this;
 	}
 
 	// Add a comic to the comic box
-	comicbox.add_comic = function(series, issue) {
+	comicbox.addComic = function (series, issue) {
 		// Validate input
 		if (!series || !issue) {
 			return false;
@@ -109,14 +158,14 @@ var app = (function JsComicBox(settings) {
 	}
 
 	// Output a list of all the current series
-	comicbox.list_comics = function() {
+	comicbox.listComics = function () {
 		// @todo priority this listing function needs to be written correctly
 		console.log(comics);
 		return this;
 	}
 
 	// Save the current working "database" for persistance (localStorage)
-	comicbox.commit = function() {
+	comicbox.commit = function () {
 		if (comic_series.length > 0) {
 			localStorage.setItem('comic_series', JSON.stringify(comic_series));
 		}
@@ -127,11 +176,11 @@ var app = (function JsComicBox(settings) {
 	}
 
 	// Launch initial comic box functionality and list
-	comicbox.main = function() {
+	comicbox.main = function () {
 		// Search for existing database within localStorage
 		if(localStorage.getItem('comic_series')) {
 			output('Loading existing database...');
-			JSON.parse(localStorage.getItem('comic_series')).forEach(function(element, index) {
+			JSON.parse(localStorage.getItem('comic_series')).forEach(function (element, index) {
 				comic_series.push(new Series(element.name, element.year, element.publisher));
 			});
 		} 
@@ -143,7 +192,7 @@ var app = (function JsComicBox(settings) {
 			// Store the current Comic Series database into LocalStorage for persistance
 			localStorage.setItem('comic_series', JSON.stringify(comic_series));
 		}
-		comicbox.list_series();
+		this.orderSeries().listSeries();
 	};
 
 	return comicbox;
@@ -158,13 +207,16 @@ app.main();
 // application, without having loosley related code inside there.
 // This will split the presentation + the functionality in a more
 // MVC manner (at least it's a start!)
-(function() {
+(function () {
 	// Load specific requirements
 	var newRecordsForm = document.getElementById('new_records');
 
+	// Init some of the form fields for a better UX experience
+
+
 	// This event listener adds a new SERIES to the database
 	// from the user input, once validataed
-	var newSeriesCallback = function() {
+	var newSeriesCallback = function () {
 		// Function variables for the new series + user input
 		var new_series,
 			title = newRecordsForm.new_series_name.value || false,
@@ -174,8 +226,9 @@ app.main();
 			alert('You must enter in all fields before adding a new Series');
 			return false;
 		}
-		var new_series = app.add_series(title, year);
-		console.log('Added a new Series: ' + new_series.get_title());
+		var new_series = app.addSeries(title, year);
+		app.listSeries();
+		console.log('Added a new Series: ' + new_series.getTitle());
 		return false;
 	};
 
@@ -183,7 +236,7 @@ app.main();
 	// from the user input, once validataed
 	// @purpose
 	// @return 
-	var newComicCallback = function() {
+	var newComicCallback = function () {
 		// Function variables for the new series + user input
 		var new_series,
 			series = newRecordsForm.new_comic_series.value || false,
@@ -193,27 +246,30 @@ app.main();
 			alert('You must enter in all fields before adding a new Comic');
 			return false;
 		}
-		var new_comic = app.add_comic(series, issue);
-		console.log('Added a new Comic: ' + new_comic.get_title());
+		var new_comic = app.addComic(series, issue);
+		console.log('Added a new Comic: ' + new_comic.getTitle());
 		return true;
 	};
 
 	// Commit callback
 	// @purpose This function will commit the current status of the database
 	// @return APP for chaining
-	var commitCallback = function() { 
+	var commitCallback = function () { 
 		app.commit();
 		return app;
 	};
+	
 	// Attach events to form listeners to the submit button
 	// and cancel out the form from refreshing, if there is a
 	// JS error
 	newRecordsForm.new_series_submit.onclick = newSeriesCallback;
 	newRecordsForm.new_comic_submit.onclick = newComicCallback;
 	newRecordsForm.commit.onclick = commitCallback;
+
 	// Stop the form from submitting, in the event of a crash
 	// on the ADD NEW code, should use TRY/CATCH
-	newRecordsForm.onsubmit = function() {
+	newRecordsForm.onsubmit = function () {
 		return false;
 	}
+
 }());
