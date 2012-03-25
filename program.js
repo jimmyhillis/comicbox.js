@@ -16,7 +16,7 @@ Last Update: 19/03/2012
 */
 
 // Default settings for loading the JSComicBox app
-var s = { 'output_element': 'records' };
+var s = { 'output_element': 'dbcontent' };
 
 var app = (function JsComicBox(settings) {
 	"use strict";
@@ -27,7 +27,7 @@ var app = (function JsComicBox(settings) {
 
 	comicbox.version = "0.1";
 	comicbox.developer = "jimmy.hillis@me.com";
-	comicbox.output_element = "records";
+	comicbox.output_element = "dbcontent";
 
 	// Function allows me to write simple markup (generally HTML) to the browser
 	// for client + testing purposes
@@ -37,12 +37,14 @@ var app = (function JsComicBox(settings) {
 		element.innerHTML = str;
 		content.appendChild(element);
 	}
+	// Clears the current database markup with nothing
 	clear = function (element_id) {
 		var element; // DOM element to clear
+
 		if (typeof element === "undefined") {
-			console.log("Not set, using the default to clear.");
 			element_id = comicbox.output_element;
 		}
+
 		element = document.getElementById(element_id);
 		element.innerHTML = '';
 	}
@@ -51,9 +53,9 @@ var app = (function JsComicBox(settings) {
 
 	// Comic constructor
 	Comic = function (issue, month, year, writer, penciller) {
-		this.issue = issue || 1;
-		this.month = month || 1;
-		this.year = year || 1969;
+		this.issue = parseInt(issue,10) || 1;
+		this.month = parseInt(month,10) || 1;
+		this.year = parseInt(year,10) || 1969;
 		this.writer = writer || "";
 		this.penciller = penciller || "";
 	}
@@ -95,20 +97,84 @@ var app = (function JsComicBox(settings) {
 		};
 		// Add the comic object to this Series array of scomics
 		this.comics.push(comic);
+		this.sortComics();
 		return this;
 	}
 
+	// Sort the current comics by numeric order
+	Series.prototype.sortComics = function sortComics() {
+		this.comics.sort(byIssue);
+	}
+
 	// Returns a {String} list of all current Issues of this Series
-	Series.prototype.listComics = function () {
+	// This list depicts the numbers in a logical numeric order with -
+	// representing a range of issues e.g. 1-3 means you have issues 
+	// 1, 2, and 3 within your collection.
+	Series.prototype.listComics = function listComics() {
 		
-		var i, issues = "";
+		var i, sequential = false, issues = "";
 
 		for (i = this.comics.length; i--;) {
-			issues = issues + "#" + this.comics[i].issue + " ";
-		};
+			
+			// First entry, just list it otherwise run checks
+			if (i === (this.comics.length - 1)) {
 
-		return issues.trim();
+				issues = "#" + this.comics[i].issue;
+
+			} else {
+
+				// If this issue is in sequential order of the last one based
+				// on the comics ISSUE NUMBER then start the sequence
+				if ((this.comics[i].issue - this.comics[i+1].issue) === 1) {
+				
+					// This is the 2nd sequenced number, put a - in
+					if (!sequential) {
+						
+						sequential = true;
+						issues = issues + "-";
+
+					} 
+
+					// If this is the last in the record you must list it
+					// regardless of anything, this is to catch a new sequence 
+					// on the final issue
+					if (i === 0) {
+
+						issues = issues + this.comics[i].issue;
+
+					}
+				
+				// This issue is NOT in sequence with the last
+				} else {
+				
+					// Break the last sequence and end the final
+					// number before this issue
+					if (sequential) {
+						issues = issues + this.comics[i+1].issue + ' ';
+					}
+
+					// Add a new issue with a comma to separate the last
+					// issue or the last sequence
+					issues = issues.trim() + ", " + this.comics[i].issue;
+					sequential = false;
+				
+				} // end sequenced comics
+
+			} // end first or other comic
+	
+		}; // end loop through all this series comics
+
+		return issues;
 	}
+
+	// == TEMPLATES FOR MARKUP == //
+
+	Series.templates = [];
+	Comic.templates = [];
+
+	Series.templates['single'] = Handlebars.compile("{{name}} [<em>{{year}}</em>] - {{comics.length}} issues <br /> listComics");
+	Series.templates['all'] = Handlebars.compile("<ul>{{#each comic_series}}<li>{{this.name}} [<em>{{this.year}}</em>] - {{this.comics.length}} issues <div class=\"comics\">{{this.listComics}}</div></li>{{/each}}</ul>");
+	Comic.templates['single'] = Handlebars.compile("{{../name}} #{{issue}}");
 
 	/* == COMIC BOX PUBLIC METHODS == */
 
@@ -146,7 +212,6 @@ var app = (function JsComicBox(settings) {
 		
 		for (i = comic_series.length; i--;) {
 			if (comic_series[i].getTitle() === title) {
-				console.log('Found it, better return it!');
 				return comic_series[i];
 			}
 		}
@@ -185,14 +250,23 @@ var app = (function JsComicBox(settings) {
 		}
 	};
 	var byName = function (a, b) {
-		if (a.getTitle() < b.getTitle()) {
+		if (a.getTitle() > b.getTitle()) {
 			return 1;
-		} else if (a.getTitle() > b.getTitle()) {
+		} else if (a.getTitle() < b.getTitle()) {
 			return -1;
 		} else {
 			return 0;
 		}
 	};
+	var byIssue = function byIssue(a, b) {
+		if (a.issue < b.issue) {
+			return 1;
+		} else if (a.issue > b.issue) {
+			return -1;
+		} else {
+			return 0;
+		}
+	}
 
 	// Outputs an HTML markup of all series in the database
 	// @return this
@@ -202,17 +276,7 @@ var app = (function JsComicBox(settings) {
 		var list = "";
 		with_comics = with_comics || true;
 
-		list += '<ul>';
-		// Loop through each series and spit out the name
-		for (var i = comic_series.length - 1; i >= 0; i--) {
-			list = list + '<li>';
-			list = list + comic_series[i].getTitle();
-			if (with_comics) {
-				list = list + " (" + comic_series[i].listComics() + ")";
-			}
-			list = list + '</li>';
-		};
-		list += '</ul>';
+		list = Series.templates['all']({'comic_series': comic_series});
 		clear();
 		output(list);
 
@@ -225,7 +289,8 @@ var app = (function JsComicBox(settings) {
 	// @return new Comic
 	comicbox.addComic = function (title, issue) {
 
-		var series, new_comic;
+		var series = {}, 
+			new_comic = {};
 
 		// Validate input
 		if (!title || !issue) {
@@ -261,18 +326,31 @@ var app = (function JsComicBox(settings) {
 
 	// Launch initial comic box functionality and list
 	comicbox.main = function () {
+		var i = 0, 
+			series = {},
+			comic = {}, 
+			comic_data = {},
+			comics_count = 0;
+
 		// Search for existing database within localStorage
 		if (localStorage.getItem('comic_series')) {
-			output('Loading existing database...');
+			console.log('Loading existing database from localStorage.');
 			JSON.parse(localStorage.getItem('comic_series')).forEach(function (element, index) {
-				comic_series.push(new Series(element.name, element.year, element.publisher));
+				series = new Series(element.name, element.year, element.publisher);
+				for(i = element.comics.length; i--;) {
+					comic_data = element.comics[i];
+					comic = new Comic(comic_data.issue, comic_data.month, comic_data.year, comic_data.writer, comic_data.penciller);
+					series.addComic(comic);
+				}
+				comic_series.push(series);
 			});
 		} 
 		// Nothing found, so create a basic example database
 		else {
-			alert('No DB exists, so I\'ll create a demo for you');
-			comic_series.push(new Series('Uncanny X-Men', 1969, 'Marvel'));
-			comic_series.push(new Series('Fantastic Four', 1962, 'Marvel'));
+			if(confirm('No DB exists, should I create some demo data for you?')) {
+				comic_series.push(new Series('Uncanny X-Men', 1969, 'Marvel'));
+				comic_series.push(new Series('Fantastic Four', 1962, 'Marvel'));
+			}
 		}
 		this.sortSeries().listSeries();
 	};
@@ -289,7 +367,7 @@ app.main();
 // This will split the presentation + the functionality in a more
 // MVC manner (at least it's a start!)
 (function () {
-	// Load specific requirements
+
 	var ui_form = document.getElementById('new_records'),
 		current_sort = "name";
 
