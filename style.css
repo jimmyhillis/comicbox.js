@@ -71,35 +71,45 @@ body {
   font-family: 'Liberation Sans', 'Helvetica','Arial',sans-serif;
   font-weight: 100;
   line-height: 1.2em;
-  background: url(img/bg.jpg);
 }
 h1 {
-  font-size: 2em;
-  font-weight: 500;
+  font-size: 3em;
+  font-weight: bold;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  color:#222;
+  text-transform:uppercase;
 }
 h2 {
+  font-size:2em;
 	margin:0;
 	padding:0;
 	display: inline-block;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+h3 {
+
 }
 /* == Forms and inputs == */
 .title {
   text-transform: uppercase;
   font-weight: 500;
-  font-size: 0.9em;
+  font-size: 20px;
   color: #fff;
   background: #33add6;
   border-radius: 3px;
   padding: 5px 10px;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
 }
 .button {
   text-transform: uppercase;
-  font-weight: 500;
+  font-weight: normal;
+  font-size:16px;
   color: #fff;
   background: #aaa;
   border-radius: 3px;
   padding: 5px 10px;
   border: 0;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
 }
 .button:hover {
   background: #888
@@ -119,20 +129,22 @@ h2 {
   -moz-opacity: 0.9;
   filter: alpha(opacity=9);
 }
+header {
+  text-align:center;
+}
 #mainwrap {
   background: #eee;
-  margin: 50px auto 0;
+  margin: 30px auto;
   width: 90%;
   min-width: 400px;
   padding: 2%;
-  box-shadow: 0px 5px 10px 2px #ccc;
+  border-radius: 3px;
 }
 #content {
   margin: 2%;
   padding: 2%;
   background: #ddd;
   font-size: 0.9em;
-  line-height: 1em;
   height: 100%;
   overflow: hidden;
   border-radius: 3px;
@@ -150,9 +162,10 @@ h2 {
 		margin-bottom:5px;
 		padding-bottom:5px;
 		padding-left:5px;
-		border-left:solid 3px #ccc;
 	}
-	#records li:first-letter { color:#33ADD6; font-weight:bold; }
+  #records li .comics {
+    color:#555;
+  }
 /* == ADD FORMS == */
 #add_record {
   width: 65%;
@@ -173,6 +186,24 @@ h2 {
 #add_record label:after {
   content: ':'
 }
+footer {
+  display:block;
+  width:90%;
+  margin: 0 auto 30px auto;
+}
+#social_columns {
+  height:100%;
+  overflow:hidden;
+  zoom:1;
+  border-top: dashed 1px #eee;
+  border-bottom: dashed 1px #eee;
+}
+.social_column {
+  width: 30%;
+  margin-right:3%;
+  float: left;
+}
+#licensing { padding-top: 20px; }
 
 /* ==|== non-semantic helper classes ========================================
    Please define your styles before this section.
@@ -186,7 +217,8 @@ h2 {
 .hidden { display: none !important; visibility: hidden; }
 
 /* Hide only visually, but have it available for screenreaders: h5bp.com/v */
-.visuallyhidden { border: 0; clip: rect(0 0 0 0); height: 0.077em; margin: -0.077em; overflow: hidden; padding: 0; position: absolute; width: 0.077em; } /* { border: 0; clip: rect(0 0 0 0); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; width: 1px; } */
+.visuallyhidden { border: 0; clip: rect(0 0 0 0); height: 0.077em; margin: -0.077em; overflow: hidden; padding: 0; position: absolute; width: 0.077em; } 
+/* { border: 0; clip: rect(0 0 0 0); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; width: 1px; } */
 
 /* Extends the .visuallyhidden class to allow the element to be focusable when navigated to via the keyboard: h5bp.com/p */
 .visuallyhidden.focusable:active, .visuallyhidden.focusable:focus { clip: auto; height: auto; margin: 0; overflow: visible; position: static; width: auto; }

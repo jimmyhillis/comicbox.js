@@ -13,30 +13,38 @@
 		<div id="mainwrap">
 			<header>
 				<h1>JSComicBox</h1>
+				<p>"A simple client-side JavaScript comic book archiving tool."</p>
 			</header>
 
 			<div id="content">
 
 				<section id="records">
-					<h2 class="title">Your Series</h2>
+					<h2>Series &amp; Comics</h2>
+					<div id="dbcontent"></div>
 				</section> <!-- #content -->
 
 				<aside id="add_record">
 					<form id="new_records">
 						<fieldset>
 							<legend class="title">New Series</legend>
+							<p>Enter the title and year this series began e.g. "Superman" and "1939" to represent an entire series</p>
 							<label for="new_series_name">Title</label>
 							<input type="text" name="name" id="new_series_name" maxlength="255" />
 							<label for="new_year">Year</label>
 							<input type="text" name="year" id="new_series_year" maxlength="4" />
+							<label for="new_publisher">Publisher</label>
+							<input type="text" name="publisher" id="new_series_publisher" maxlength="4" />
 							<input type="submit" name="add" id="new_series_submit" value="Add" class="button submit" />
 						</fieldset>
 						<fieldset>
 							<legend class="title">New Comic</legend>
+							<p>Select the series (start typing it!) and then add an issue number to add that issue to your collection.</p>
 							<label for="new_comic_series">Series</label>
 							<input type="text" name="name" id="new_comic_series" maxlength="255" />
 							<label for="new_year">Issue</label>
 							<input type="text" name="issue" id="new_comic_issue" maxlength="4" />
+							<label for="new_writer">Writer</label>
+							<input type="text" name="writer" id="new_comic_writer" maxlength="4" />
 							<input type="submit" name="add" id="new_comic_submit" value="Add" class="button submit" />
 						</fieldset>
 						<fieldset id="storage_options">
@@ -51,13 +59,42 @@
 
 			</div> <!-- #content -->
 
-			<footer>
-				<a href="http://www.twitter.com/#!/ppjim3">@ppjim3</a>
-				<a href="http://github.com/jimmyhillis/">github/jimmyhillis</a>
-			</footer>
-
 		</div> <!-- mainwrap -->
 
+		<footer>
+
+			<div id="social_columns">
+				<aside id="blog" class="social_column">
+					<h3>Development Blog</h3>
+					<p>A journal of my development of this app.</p>
+					<p><strong>Coming soon</strong>.</p>
+				</aside>
+
+				<aside id="twitter" class="social_column">
+					<h3>Twitter</h3>
+					<p>Mon twitter account ici.</p>
+				</aside>
+			
+				<aside id="contact" class="social_column">
+					<h3>Contact</h3>
+					<p>
+						You can easily contact me through my Twitter @ppjim3 for any 	reasons project related or other.</p>
+				</aside>
+			</div>
+
+			<div id="licensing">
+				<p>This is an Open Source project.</p>
+				<p>
+					<a href="http://www.twitter.com/#!/ppjim3">@ppjim3</a>
+					<a href="http://github.com/jimmyhillis/">github/jimmyhillis</a>
+					<small>
+						Check out the code that built this app, and more, at my Github account.</small>
+				</p>
+			</div>
+
+		</div>
+
+		<script type="text/javascript" src="js/handlebars-1.0.0.beta.6.js"></script>
 		<script type="text/javascript" src="program.js"></script>
 	
 	</body>
