@@ -206,13 +206,19 @@ var app = (function JsComicBox(settings) {
 	// Searches existing Series for a matching title
 	// @param title {String} Entire specified title in the Name [YYYY] format
 	// @return Series object if found false if not
-	comicbox.findSeries = function (title) {
-		
+	comicbox.findSeries = function (title, exact) {
 		var i;
+		exact = exact || false;
 		
 		for (i = comic_series.length; i--;) {
-			if (comic_series[i].getTitle() === title) {
-				return comic_series[i];
+			if(!exact) {
+				if (comic_series[i].getTitle() === title) {
+					return comic_series[i];
+				}
+			} else {
+				if (comic_series[i].name.indexOf(title) !== -1) {
+					return comic_series[i];
+				}
 			}
 		}
 		return false;
@@ -369,14 +375,30 @@ app.main();
 (function () {
 
 	var ui_form = document.getElementById('new_records'),
-		current_sort = "name";
+		current_sort = "name",
+		newSeriesCallback, 
+		newComicCallback,
+		sortComicsCallback,
+		commitCallback,
+		selectSeriesHelper;
+
+	var json_response = {"number_of_page_results": 20, "status_code": 1, "error": "OK", "results": [{"start_year": 2006, "count_of_issues": 50, "resource_type": "volume", "id": 18130}, {"start_year": 1984, "count_of_issues": 6, "resource_type": "volume", "id": 3348}, {"start_year": 2004, "count_of_issues": 6, "resource_type": "volume", "id": 10811}, {"start_year": 2004, "count_of_issues": 5, "resource_type": "volume", "id": 10810}, {"start_year": 2003, "count_of_issues": 5, "resource_type": "volume", "id": 17989}, {"start_year": 1982, "count_of_issues": 4, "resource_type": "volume", "id": 3157}, {"start_year": 1988, "count_of_issues": 4, "resource_type": "volume", "id": 4055}, {"start_year": 1989, "count_of_issues": 4, "resource_type": "volume", "id": 4251}, {"start_year": 1995, "count_of_issues": 4, "resource_type": "volume", "id": 7182}, {"start_year": 2000, "count_of_issues": 4, "resource_type": "volume", "id": 9115}, {"start_year": 2004, "count_of_issues": 4, "resource_type": "volume", "id": 10812}, {"start_year": 2003, "count_of_issues": 4, "resource_type": "volume", "id": 11379}, {"start_year": 2002, "count_of_issues": 4, "resource_type": "volume", "id": 18193}, {"start_year": 2002, "count_of_issues": 4, "resource_type": "volume", "id": 18569}, {"start_year": 1997, "count_of_issues": 3, "resource_type": "volume", "id": 6022}, {"start_year": 1993, "count_of_issues": 3, "resource_type": "volume", "id": 7183}, {"start_year": 2003, "count_of_issues": 2, "resource_type": "volume", "id": 18514}, {"start_year": 2006, "count_of_issues": 1, "resource_type": "volume", "id": 18368}, {"start_year": 1997, "count_of_issues": 1, "resource_type": "volume", "id": 18374}, {"start_year": 1997, "count_of_issues": 1, "resource_type": "volume", "id": 18391}], "limit": 20, "offset": 0, "number_of_total_results": 231};
+	console.log(json_response);
+	var this_result;
+
+	for(var i = json_response.results.length; i--;) {
+		this_result = json_response.results[i];
+		console.log('Year was ' + this_result.start_year);
+	}
+
+		//CVrequest = "http://api.comicvine.com/search/?api_key=cee91997ac41e9914b5b27e0648829642c7020c2&format=json&resources=volume&field_list=start_year,id,count_of_issues&query=wolverine&limit=10&filter=publish_year=2011";
 
 	// Init some of the form fields for a better UX experience
 
 
 	// This event listener adds a new SERIES to the database
 	// from the user input, once validataed
-	var newSeriesCallback = function () {
+	newSeriesCallback = function () {
 
 		var new_series,
 			title = ui_form.new_series_name.value || false,
@@ -398,7 +420,7 @@ app.main();
 	// from the user input, once validataed
 	// @purpose
 	// @return suc
-	var newComicCallback = function () {
+	newComicCallback = function () {
 		// Function variables for the new series + user input
 		var new_series,
 			series = ui_form.new_comic_series.value || false,
@@ -414,7 +436,7 @@ app.main();
 		return app;
 	};
 
-	var sortComicsCallback = function () {
+	sortComicsCallback = function () {
 		this.value = "Sort by " + current_sort;
 		if (current_sort === "name") {
 			current_sort = "year";
@@ -427,10 +449,24 @@ app.main();
 	// Commit callback
 	// @purpose This function will commit the current status of the database
 	// @return APP for chaining
-	var commitCallback = function () { 
+	commitCallback = function () { 
 		app.commit();
 		return app;
 	};
+
+	selectSeriesHelper = function(evt) {
+		var found_series;
+		//console.log('He typed!' + evt.keyCode);
+		if(this.value.length > 3) {
+	
+			// Search and replace input with found series, if nay
+			found_series = app.findSeries(this.value, true);
+			if (found_series) {
+				this.value = found_series.getTitle();				
+			}
+
+		}
+	} 
 	
 	// Attach events to form listeners to the submit button
 	// and cancel out the form from refreshing, if there is a
@@ -439,11 +475,37 @@ app.main();
 	ui_form.new_comic_submit.onclick = newComicCallback;
 	ui_form.commit.onclick = commitCallback;
 	ui_form.sort.onclick = sortComicsCallback;
+	ui_form.new_comic_series.onkeyup = selectSeriesHelper;
 
 	// Stop the form from submitting, in the event of a crash
 	// on the ADD NEW code, should use TRY/CATCH
 	ui_form.onsubmit = function () {
 		return false;
 	}
+
+
+}());
+
+// == UX Extras and display ==
+// This function loads a few external UI features such as 
+// my Twitter feed and puts them where they belong. This is
+// NON-ESSENTIAL code purely for visual/design needs.
+
+(function loadUX() {
+
+	var appendTweets = function appendTweets(tweets) {
+
+			var i, max, element, 
+				content = document.getElementById('twitter-content');
+
+			for(i = 0, max = tweets.length; i < max; i++) {
+				element = document.createElement('p');
+				element.innerHTML = tweets[i].text;
+				content.appendChild(element);
+			}
+
+	}
+
+	TWTR.getTweets("ppjim3", 2, appendTweets);
 
 }());
