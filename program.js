@@ -20,10 +20,15 @@ var s = { 'output_element': 'dbcontent' };
 
 var app = (function JsComicBox(settings) {
 	"use strict";
+	
 	var output, clear, Comic, Series,
-		comicbox = { },
+		
+		// PRIVATE
 		comics = [], // array of comics in your personal
-		comic_series = []; // array of comic series e.g. Amazing Spider-Man (1999)
+		comic_series = [],
+
+		// PUBLIC
+		comicbox = { }; // array of comic series e.g. Amazing Spider-Man (1999)
 
 	comicbox.version = "0.1";
 	comicbox.developer = "jimmy.hillis@me.com";
@@ -37,11 +42,14 @@ var app = (function JsComicBox(settings) {
 		element.innerHTML = str;
 		content.appendChild(element);
 	}
+
 	// Clears the current database markup with nothing
 	clear = function (element_id) {
-		var element; // DOM element to clear
+		
+		// DOM element to clear
+		var element; 
 
-		if (typeof element === "undefined") {
+		if (typeof element_id === "undefined") {
 			element_id = comicbox.output_element;
 		}
 
@@ -128,20 +136,16 @@ var app = (function JsComicBox(settings) {
 				if ((this.comics[i].issue - this.comics[i+1].issue) === 1) {
 				
 					// This is the 2nd sequenced number, put a - in
-					if (!sequential) {
-						
+					if (!sequential) {						
 						sequential = true;
 						issues = issues + "-";
-
 					} 
 
 					// If this is the last in the record you must list it
 					// regardless of anything, this is to catch a new sequence 
 					// on the final issue
 					if (i === 0) {
-
 						issues = issues + this.comics[i].issue;
-
 					}
 				
 				// This issue is NOT in sequence with the last
@@ -207,16 +211,17 @@ var app = (function JsComicBox(settings) {
 	// @param title {String} Entire specified title in the Name [YYYY] format
 	// @return Series object if found false if not
 	comicbox.findSeries = function (title, exact) {
+		
 		var i;
 		exact = exact || false;
 		
 		for (i = comic_series.length; i--;) {
 			if(!exact) {
-				if (comic_series[i].getTitle() === title) {
+				if (comic_series[i].getTitle().toLowerCase() === title.toLowerCase()) {
 					return comic_series[i];
 				}
 			} else {
-				if (comic_series[i].name.indexOf(title) !== -1) {
+				if (comic_series[i].name.toLowerCase().indexOf(title.toLowerCase()) !== -1) {
 					return comic_series[i];
 				}
 			}
@@ -291,12 +296,15 @@ var app = (function JsComicBox(settings) {
 
 	// Adds a Comic to the specified Series within your database
 	// @param series {Series Object} The series this new issue belongs too
-	// @param issue {Number} The issue number of this comic
+	// @param issue {Number} The issue number of this comic, this can be a 
+	// sequence or list of issues (eg. 1,2-3,4) which would add issues 1-4
 	// @return new Comic
 	comicbox.addComic = function (title, issue) {
 
 		var series = {}, 
-			new_comic = {};
+			new_comic = {},
+			matches,
+			i, j, issue_numbers, low, high;
 
 		// Validate input
 		if (!title || !issue) {
@@ -310,11 +318,62 @@ var app = (function JsComicBox(settings) {
 			return false;
 		}
 
-		// Create a new comic and add it to the correct Series
-		new_comic = new Comic(issue);
-		series.addComic(new_comic);
+		// Confirm the issue format doesn't contain any non-expected characters
+		// ONLY allows numbers 1-9 or commas or hyphen characters
+		if (/^([1-9\-\,])+$/.test(issue) === false) {
+			alert('Bad user input!\nYour input can only be numeric 1-9 characters separated by a (,) or sequened by a (-)');
+			return false;
+		}
 
-		return new_comic;
+		// Split the provided issues up by each sequence break
+		issue_numbers = issue.split(',');
+
+		// Go through each provided "sequence" of issues
+		i = issue_numbers.length
+		for (i; i--;) {
+			
+			// If this sequence is a single issue add it as is
+			if (/^[0-9]+$/.test(issue_numbers[i])) {
+				
+				new_comic = new Comic(issue_numbers[i]);
+				series.addComic(new_comic);
+
+			// Add each issue between the two provided
+			} else {
+
+				// Look for a range of issues
+				matches = issue_numbers[i].split('-');
+
+				// Confirm there is only one specific sequence provided
+				if (matches.length === 2) {
+
+					// Work out which is the highest and lowest to loop through
+					if(parseInt(matches[0],10) > parseInt(matches[1],10)) {
+						high = matches[0];
+						low = matches[1]; 
+					} else {
+						high = matches[1];
+						low = matches[0];
+					}
+
+					// Add each number within the sequence from low to high
+					for (low; low <= high; low++) {
+						new_comic = new Comic(low);
+						series.addComic(new_comic);
+					}
+					
+				} else {
+					
+					alert('Bad user input!\nYou can only have 2 numbers surrounding a single (-) character!');
+					return false;
+
+				}
+
+			}
+
+		}
+
+		return comicbox;
 	}
 
 	// Saves the current database to localStorage for persistence 
@@ -382,19 +441,18 @@ app.main();
 		commitCallback,
 		selectSeriesHelper;
 
-	var json_response = {"number_of_page_results": 20, "status_code": 1, "error": "OK", "results": [{"start_year": 2006, "count_of_issues": 50, "resource_type": "volume", "id": 18130}, {"start_year": 1984, "count_of_issues": 6, "resource_type": "volume", "id": 3348}, {"start_year": 2004, "count_of_issues": 6, "resource_type": "volume", "id": 10811}, {"start_year": 2004, "count_of_issues": 5, "resource_type": "volume", "id": 10810}, {"start_year": 2003, "count_of_issues": 5, "resource_type": "volume", "id": 17989}, {"start_year": 1982, "count_of_issues": 4, "resource_type": "volume", "id": 3157}, {"start_year": 1988, "count_of_issues": 4, "resource_type": "volume", "id": 4055}, {"start_year": 1989, "count_of_issues": 4, "resource_type": "volume", "id": 4251}, {"start_year": 1995, "count_of_issues": 4, "resource_type": "volume", "id": 7182}, {"start_year": 2000, "count_of_issues": 4, "resource_type": "volume", "id": 9115}, {"start_year": 2004, "count_of_issues": 4, "resource_type": "volume", "id": 10812}, {"start_year": 2003, "count_of_issues": 4, "resource_type": "volume", "id": 11379}, {"start_year": 2002, "count_of_issues": 4, "resource_type": "volume", "id": 18193}, {"start_year": 2002, "count_of_issues": 4, "resource_type": "volume", "id": 18569}, {"start_year": 1997, "count_of_issues": 3, "resource_type": "volume", "id": 6022}, {"start_year": 1993, "count_of_issues": 3, "resource_type": "volume", "id": 7183}, {"start_year": 2003, "count_of_issues": 2, "resource_type": "volume", "id": 18514}, {"start_year": 2006, "count_of_issues": 1, "resource_type": "volume", "id": 18368}, {"start_year": 1997, "count_of_issues": 1, "resource_type": "volume", "id": 18374}, {"start_year": 1997, "count_of_issues": 1, "resource_type": "volume", "id": 18391}], "limit": 20, "offset": 0, "number_of_total_results": 231};
-	console.log(json_response);
-	var this_result;
+	//var json_response = {"number_of_page_results": 20, "status_code": 1, "error": "OK", "results": [{"start_year": 2006, "count_of_issues": 50, "resource_type": "volume", "id": 18130}, {"start_year": 1984, "count_of_issues": 6, "resource_type": "volume", "id": 3348}, {"start_year": 2004, "count_of_issues": 6, "resource_type": "volume", "id": 10811}, {"start_year": 2004, "count_of_issues": 5, "resource_type": "volume", "id": 10810}, {"start_year": 2003, "count_of_issues": 5, "resource_type": "volume", "id": 17989}, {"start_year": 1982, "count_of_issues": 4, "resource_type": "volume", "id": 3157}, {"start_year": 1988, "count_of_issues": 4, "resource_type": "volume", "id": 4055}, {"start_year": 1989, "count_of_issues": 4, "resource_type": "volume", "id": 4251}, {"start_year": 1995, "count_of_issues": 4, "resource_type": "volume", "id": 7182}, {"start_year": 2000, "count_of_issues": 4, "resource_type": "volume", "id": 9115}, {"start_year": 2004, "count_of_issues": 4, "resource_type": "volume", "id": 10812}, {"start_year": 2003, "count_of_issues": 4, "resource_type": "volume", "id": 11379}, {"start_year": 2002, "count_of_issues": 4, "resource_type": "volume", "id": 18193}, {"start_year": 2002, "count_of_issues": 4, "resource_type": "volume", "id": 18569}, {"start_year": 1997, "count_of_issues": 3, "resource_type": "volume", "id": 6022}, {"start_year": 1993, "count_of_issues": 3, "resource_type": "volume", "id": 7183}, {"start_year": 2003, "count_of_issues": 2, "resource_type": "volume", "id": 18514}, {"start_year": 2006, "count_of_issues": 1, "resource_type": "volume", "id": 18368}, {"start_year": 1997, "count_of_issues": 1, "resource_type": "volume", "id": 18374}, {"start_year": 1997, "count_of_issues": 1, "resource_type": "volume", "id": 18391}], "limit": 20, "offset": 0, "number_of_total_results": 231};
+	//console.log(json_response);
+	//var this_result;
 
-	for(var i = json_response.results.length; i--;) {
-		this_result = json_response.results[i];
-		console.log('Year was ' + this_result.start_year);
-	}
+	//for(var i = json_response.results.length; i--;) {
+	//	this_result = json_response.results[i];
+	//	console.log('Year was ' + this_result.start_year);
+	//}
 
-		//CVrequest = "http://api.comicvine.com/search/?api_key=cee91997ac41e9914b5b27e0648829642c7020c2&format=json&resources=volume&field_list=start_year,id,count_of_issues&query=wolverine&limit=10&filter=publish_year=2011";
+	//CVrequest = "http://api.comicvine.com/search/?api_key=cee91997ac41e9914b5b27e0648829642c7020c2&format=json&resources=volume&field_list=start_year,id,count_of_issues&query=wolverine&limit=10&filter=publish_year=2011";
 
 	// Init some of the form fields for a better UX experience
-
 
 	// This event listener adds a new SERIES to the database
 	// from the user input, once validataed
@@ -422,17 +480,19 @@ app.main();
 	// @return suc
 	newComicCallback = function () {
 		// Function variables for the new series + user input
-		var new_series,
+		var new_comic = {},
 			series = ui_form.new_comic_series.value || false,
 			issue = ui_form.new_comic_issue.value || false;
+		
 		// Very basic form validation to confirm they are entered
 		if (!series || !issue) {
 			alert('You must enter in all fields before adding a new Comic');
 			return false;
 		}
-		var new_comic = app.addComic(series, issue);
+
+		new_comic = app.addComic(series, issue);
 		app.listSeries();
-		console.log('Added a new Comic: ' + new_comic.getTitle());
+		console.log('Added ' + new_comic + ' new comics!');
 		return app;
 	};
 
@@ -506,6 +566,6 @@ app.main();
 
 	}
 
-	TWTR.getTweets("ppjim3", 2, appendTweets);
+	TWEETS.getTweets("ppjim3", 2, appendTweets);
 
 }());
