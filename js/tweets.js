@@ -1,4 +1,4 @@
-var TWTR = (function (username) {
+var TWEETS = (function (username) {
 
 	var 
 		tweets = {},
