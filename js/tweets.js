@@ -35,19 +35,9 @@ var TWEETS = (function (username) {
 		screen_name = username;
 		tweetcount = count;
 		twitter_api_call = buildRequest();
-		
-		console.log(twitter_api_call);
 
 		loadJSONP(twitter_api_call, callback);
 
-	}
-
-	// Take a set of JSON Tweets and add them to the twitter
-	// feed location provided
-
-	tweets.tweetshare = function(data) {
-		
-		
 	}
 
 	return tweets;
