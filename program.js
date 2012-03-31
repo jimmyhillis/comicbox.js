@@ -1,7 +1,7 @@
 /*
 
 Developer: Jimmy Hillis / jimmy.hillis@me.com
-Repository: https://github.com/jimmyhillis/JSComicBox/
+Repository: https://github.com/jimmyhillis/comicbox.js/
 Version: 0.1
 Last Update: 19/03/2012
 
