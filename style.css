@@ -1,3 +1,15 @@
+/* Web Fonts */
+@font-face {
+  font-family: 'ModernPictogramsNormal';
+  src: url('fonts/modernpics/modernpics-webfont.eot');
+  src: url('modernpics-webfonfonts/modernpics/t.eot?#iefix') format('embedded-opentype'),
+       url('fonts/modernpics/modernpics-webfont.woff') format('woff'),
+       url('fonts/modernpics/modernpics-webfont.ttf') format('truetype'),
+       url('fonts/modernpics/modernpics-webfont.svg#ModernPictogramsNormal') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
 /* HTML5 Boilerplate ==|== normalize */
 article, aside, details, figcaption, figure, footer, header, hgroup, nav, section { display: block; }
 audio, canvas, video { display: inline-block; *display: inline; *zoom: 1; }
@@ -61,6 +73,8 @@ input[type="text"], input[type="password"], textarea { padding: 0.385em; margin-
 form fieldset .property input.medium { width: 7.692em; }
 form fieldset .property input.small { width: 3.077em; }
 form fieldset .property { line-height: 1.5em; }
+
+
 
 /* ==|== primary styles =====================================================
    Author: Jimmy Hillis (ppjim3@gmail.com / @ppjim3)
@@ -128,12 +142,15 @@ h3 {
   opacity: 0.9;
   -moz-opacity: 0.9;
   filter: alpha(opacity=9);
+  -webkit-box-shadow: 0px 5px 8px 0px #bbb; 
+  -moz-box-shadow: 0px 5px 8px 0px #bbb; 
+  box-shadow: 0px 5px 8px 0px #bbb;
 }
 header {
   text-align:center;
 }
 #mainwrap {
-  background: #eee;
+  background: #eee url(img/bg.png);
   margin: 30px auto;
   width: 90%;
   min-width: 400px;
@@ -166,6 +183,11 @@ header {
   #records li .comics {
     color:#555;
   }
+#records .icon {
+  font-size:18px;
+}
+
+
 /* == ADD FORMS == */
 #add_record {
   width: 65%;
@@ -202,9 +224,24 @@ footer {
   width: 30%;
   margin-right:3%;
   float: left;
+  position: relative;
 }
+.social_column .icon { 
+  display: block;
+  float: left; 
+  margin: 7px 5px 0 0;
+  font-family: 'ModernPictogramsNormal';
+  font-size:43px; 
+}
+
 #licensing { padding-top: 20px; }
 
+.icon { 
+  font-family: 'ModernPictogramsNormal'; 
+  line-height:1em; 
+}
+/* == Contact widget == */
+#avatar { with: 75px; height: 75px; float: left; margin-right:10px; border-radius: 3px; } 
 
 /* == Twitter widget == */
 
