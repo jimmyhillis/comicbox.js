@@ -186,7 +186,9 @@ header {
 #records .icon {
   font-size:18px;
 }
-
+.deleteAction {
+  cursor:pointer;
+}
 
 /* == ADD FORMS == */
 #add_record {
