@@ -3,6 +3,7 @@
 *
 * @author Jimmy Hillis <jimmy.hillis@me.com>
 * @see http://github.com/jimmyhillis/tweets.js
+* @version 0.1
 *
 * For API information and guides:
 * @see http://github.com/jimmyhillis/tweets.js/README.md 
@@ -18,6 +19,8 @@
 var TWEETS = (function (username) {
 
 	var 
+		// depdendancies
+
 		// constants
 		API_URL = "https://api.twitter.com/1/statuses/user_timeline.json?",
 		
