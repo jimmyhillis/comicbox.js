@@ -1,37 +1,39 @@
-/*
-
-JS COMIC BOX
-
-This is a practice application that allows me to
-build and work through a basic Comic Book database
-made up of a number of Objects which are linked 
-together. The purpose being the ability to propagate
-and load all related comics. 
-
-Developer: Jimmy Hillis / jimmy.hillis@me.com
-Repository: https://github.com/jimmyhillis/comicbox.js
-Version: 0.1
-Last Update: 19/03/2012
-
-*/
+/**
+ * JS COMIC BOX
+ * 
+ * This is a practice application that allows me to
+ * build and work through a basic Comic Book database
+ * made up of a number of Objects which are linked 
+ * together. The purpose being the ability to propagate
+ * and load all related comics. 
+ * 
+ * @author Jimmy Hillis <jimmy.hillis@me.com>
+ * @see https://github.com/jimmyhillis/comicbox.js
+ * @version 0.1
+ * @update 19/03/2012
+ */
 
 // Default settings for loading the JSComicBox app
 var s = { 'output_element': 'dbcontent' };
 
+/**
+ * The COMICBOX is a global utility for managing
+ * a database of Comic Books.
+ */
 var COMICBOX = (function JsComicBox(settings) {
 	"use strict";
 	
 	var output, clear, Comic, Series,
 		
-		// PRIVATE
+		// private variables
 		comics = [], // array of comics in your personal
 		comic_series = [],
 
-		// PUBLIC
+		// public object
 		comicbox = { }; // array of comic series e.g. Amazing Spider-Man (1999)
 
 	comicbox.version = "0.1";
-	comicbox.developer = "jimmy.hillis@me.com";
+	comicbox.author = "jimmy.hillis@me.com";
 	comicbox.output_element = "dbcontent";
 
 	// Function allows me to write simple markup (generally HTML) to the browser
@@ -207,10 +209,34 @@ var COMICBOX = (function JsComicBox(settings) {
 		return new_series;
 	}
 
+	comicbox.removeSeries = function (name, year, publisher) {
+
+		var series_id;
+
+		series_id = comicbox.findSeriesID(name);
+		if (series_id) {
+			console.log('I have it... I think!');
+			comic_series.splice(series_id,1);
+		}
+		else {
+			console.log('Cannot find it!');
+		}
+
+		return comicbox;
+
+	}
+
 	// Searches existing Series for a matching title
 	// @param title {String} Entire specified title in the Name [YYYY] format
 	// @return Series object if found false if not
 	comicbox.findSeries = function (title, exact) {
+		return comic_series[comicbox.findSeriesID(title, exact)];
+	}
+
+	// Searches existing Series for a matching title
+	// @param title {String} Entire specified title in the Name [YYYY] format
+	// @return Series object if found false if not
+	comicbox.findSeriesID = function (title, exact) {
 		
 		var i;
 		exact = exact || false;
@@ -218,11 +244,11 @@ var COMICBOX = (function JsComicBox(settings) {
 		for (i = comic_series.length; i--;) {
 			if(!exact) {
 				if (comic_series[i].getTitle().toLowerCase() === title.toLowerCase()) {
-					return comic_series[i];
+					return i;
 				}
 			} else {
 				if (comic_series[i].name.toLowerCase().indexOf(title.toLowerCase()) !== -1) {
-					return comic_series[i];
+					return i;
 				}
 			}
 		}
