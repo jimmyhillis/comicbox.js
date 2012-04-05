@@ -1,11 +1,14 @@
-/*
-
-Developer: Jimmy Hillis / jimmy.hillis@me.com
-Repository: https://github.com/jimmyhillis/comicbox.js/
-Version: 0.1
-Last Update: 19/03/2012
-
-*/
+/* 
+ * This file is a simple example UX for the Comicbox.js
+ * application I've programmed. The functionality below
+ * allows a HTML UI to be built and interface a user with
+ * the comicbox.js application.
+ *
+ * @author Jimmy Hillis <jimmy.hillis@me.com>
+ * @see https://github.com/jimmyhillis/comicbox.js/
+ * @version 0.1
+ * @updated 05/04/2012
+ */
 
 /* == UX HANDLERS == */
 // The following code allows me to interface with the JsComicBook
@@ -15,7 +18,11 @@ Last Update: 19/03/2012
 
 (function () {
 
-	var ui_form = document.getElementById('new_records'),
+	var 
+		// depdencies
+		app = COMICBOX,
+
+		ui_form = document.getElementById('new_records'),
 		current_sort = "name",
 		newSeriesCallback, 
 		newComicCallback,
@@ -23,25 +30,11 @@ Last Update: 19/03/2012
 		commitCallback,
 		selectSeriesHelper;
 
-	//var json_response = {"number_of_page_results": 20, "status_code": 1, "error": "OK", "results": [{"start_year": 2006, "count_of_issues": 50, "resource_type": "volume", "id": 18130}, {"start_year": 1984, "count_of_issues": 6, "resource_type": "volume", "id": 3348}, {"start_year": 2004, "count_of_issues": 6, "resource_type": "volume", "id": 10811}, {"start_year": 2004, "count_of_issues": 5, "resource_type": "volume", "id": 10810}, {"start_year": 2003, "count_of_issues": 5, "resource_type": "volume", "id": 17989}, {"start_year": 1982, "count_of_issues": 4, "resource_type": "volume", "id": 3157}, {"start_year": 1988, "count_of_issues": 4, "resource_type": "volume", "id": 4055}, {"start_year": 1989, "count_of_issues": 4, "resource_type": "volume", "id": 4251}, {"start_year": 1995, "count_of_issues": 4, "resource_type": "volume", "id": 7182}, {"start_year": 2000, "count_of_issues": 4, "resource_type": "volume", "id": 9115}, {"start_year": 2004, "count_of_issues": 4, "resource_type": "volume", "id": 10812}, {"start_year": 2003, "count_of_issues": 4, "resource_type": "volume", "id": 11379}, {"start_year": 2002, "count_of_issues": 4, "resource_type": "volume", "id": 18193}, {"start_year": 2002, "count_of_issues": 4, "resource_type": "volume", "id": 18569}, {"start_year": 1997, "count_of_issues": 3, "resource_type": "volume", "id": 6022}, {"start_year": 1993, "count_of_issues": 3, "resource_type": "volume", "id": 7183}, {"start_year": 2003, "count_of_issues": 2, "resource_type": "volume", "id": 18514}, {"start_year": 2006, "count_of_issues": 1, "resource_type": "volume", "id": 18368}, {"start_year": 1997, "count_of_issues": 1, "resource_type": "volume", "id": 18374}, {"start_year": 1997, "count_of_issues": 1, "resource_type": "volume", "id": 18391}], "limit": 20, "offset": 0, "number_of_total_results": 231};
-	//console.log(json_response);
-	//var this_result;
-
-	//for(var i = json_response.results.length; i--;) {
-	//	this_result = json_response.results[i];
-	//	console.log('Year was ' + this_result.start_year);
-	//}
-
-	//CVrequest = "http://api.comicvine.com/search/?api_key=cee91997ac41e9914b5b27e0648829642c7020c2&format=json&resources=volume&field_list=start_year,id,count_of_issues&query=wolverine&limit=10&filter=publish_year=2011";
-
-	// Init some of the form fields for a better UX experience
-
 	// This event listener adds a new SERIES to the database
 	// from the user input, once validataed
 	newSeriesCallback = function () {
 
-		var new_series,
-			title = ui_form.new_series_name.value || false,
+		var title = ui_form.new_series_name.value || false,
 			year = ui_form.new_series_year.value || false;
 
 		// Very basic form validation to confirm they are entered
@@ -50,8 +43,9 @@ Last Update: 19/03/2012
 			return false;
 		}
 
-		new_series = app.addSeries(title, year);
+		app.addSeries(title, year);
 		app.listSeries();
+		attachCallback("deleteAction", deleteComicCallback);
 
 		return app;
 	};
@@ -61,6 +55,7 @@ Last Update: 19/03/2012
 	// @purpose
 	// @return suc
 	newComicCallback = function () {
+		
 		// Function variables for the new series + user input
 		var new_comic = {},
 			series = ui_form.new_comic_series.value || false,
@@ -72,14 +67,21 @@ Last Update: 19/03/2012
 			return false;
 		}
 
-		new_comic = app.addComic(series, issue);
-		app.listSeries();
-		console.log('Added ' + new_comic + ' new comics!');
+		new_comic = app.addComic(series, issue).listSeries();
+		attachCallback("deleteAction", deleteComicCallback);
+
 		return app;
 	};
 
 	deleteComicCallback = function () {
+		
+		var series_title;
+
 		console.log('Delete this comic... in progress!');
+		series_title = this.parentNode.getElementsByClassName('series_title')[0].innerHTML;
+		app.removeSeries(series_title).listSeries();
+		attachCallback("deleteAction", deleteComicCallback);
+
 	};
 
 	sortComicsCallback = function () {
@@ -89,7 +91,11 @@ Last Update: 19/03/2012
 		} else {
 			current_sort = "name";
 		}
-		return app.sortSeries(current_sort).listSeries();
+
+		app.sortSeries(current_sort).listSeries();
+		attachCallback("deleteAction", deleteComicCallback);
+
+		return app;
 	};
 
 	// Commit callback
@@ -121,14 +127,14 @@ Last Update: 19/03/2012
 	ui_form.new_comic_series.onkeyup = selectSeriesHelper;
 
 	// Simple function to add listener to ALL class elements
-	(function (class_name, callback) {
+	(attachCallback = function (class_name, callback) {
 		var elements = document.getElementsByClassName(class_name),
 			i = elements.length, e;
 		for (i; i--;) {
 			e = elements[i];
 			e.onclick = callback;
 	  }
-	}("deleteAction", deleteComicCallback));
+	})("deleteAction", deleteComicCallback);
 
 	// Stop the form from submitting, in the event of a crash
 	// on the ADD NEW code, should use TRY/CATCH
@@ -138,12 +144,11 @@ Last Update: 19/03/2012
 
 }());
 
-// == UX Extras and display ==
-// This function loads a few external UI features such as 
-// my Twitter feed and puts them where they belong. This is
-// NON-ESSENTIAL code purely for visual/design needs.
-
-(function loadUX() {
+/* This function simply uses the TWEETS
+ * library to load my Twitter feed and put the
+ * first 3 tweets into the UX.
+ */
+(function () {
 
 	var appendTweets;
 
