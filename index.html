@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>JSComicBox</title>
+		<title>comicbox.js</title>
 		<link rel="stylesheet" type="text/css" href="style.css">
 	</head>
 	<body>
 
 		<header id="colophon">
-			Happy Habsburgs Lab
+			jimmy.hillis.me lab experiment
 		</header>
 
 		<div id="mainwrap">
 			<header>
-				<h1>JSComicBox</h1>
+				<h1>comicbox.js</h1>
 				<p>"A simple client-side JavaScript comic book archiving tool."</p>
 			</header>
 
@@ -29,11 +29,11 @@
 							<legend class="title">New Series</legend>
 							<p>Enter the title and year this series began e.g. "Superman" and "1939" to represent an entire series.</p>
 							<label for="new_series_name">Title</label>
-							<input type="text" name="name" id="new_series_name" maxlength="255" />
+							<input type="text" name="name" id="new_series_name" maxlength="255" placeholder="Amazing Spider-Man" />
 							<label for="new_year">Year</label>
-							<input type="text" name="year" id="new_series_year" maxlength="4" />
+							<input type="text" name="year" id="new_series_year" maxlength="4" placeholder="1999" />
 							<label for="new_publisher">Publisher</label>
-							<input type="text" name="publisher" id="new_series_publisher" maxlength="25" />
+							<input type="text" name="publisher" id="new_series_publisher" maxlength="25" placeholder="Marvel" />
 							<input type="submit" name="add" id="new_series_submit" value="Add" class="button submit" />
 						</fieldset>
 						<fieldset>
@@ -100,7 +100,6 @@
 
 		</div>
 
-		<script type="text/javascript" src="js/handlebars-1.0.0.beta.6.js"></script>
 		<script type="text/javascript" src="js/tweets.js"></script>
 		<script type="text/javascript" src="comicbox.js"></script>
 		<script type="text/javascript" src="program.js"></script>
