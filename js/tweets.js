@@ -13,35 +13,34 @@
 * This module will create NO markup and should be used when a
 * dev wants to setup their own markup or use the tweets for
 * another JS purpose (counting, searching, etc.)
-*
 */
 
-var TWEETS = (function (username) {
+var TWEETS = (function () {
 
 	var 
-		// depdendancies
-
-		// constants
-		API_URL = "https://api.twitter.com/1/statuses/user_timeline.json?",
+	// constants
+		API_URL = "https://api.twitter.com/1/statuses/user_timeline.json?"
 		
-		// public
-		getTweets = function () {},
+	// public 
+		, getTweets = function () {}
 
-		// private
-		userCallback = function () {},
-		buildRequest = function () {},
-		passTweetToCallback = function () {};
+	// private
+		, userCallback = function () {}
+		, buildRequest = function () {}
+		, cacheTweets = function () {};
 
 	/* Builds a Twitter API request string for retrieving
 	 * the latest Tweets from a users feed
 	 *
 	 * @return string
 	 *		Returns a HTTP request URL for the users feed via Twitter REST API
+	 *
+	 * @TODO would be nice to serialize from JSON to query string automatically.
 	 */
-	buildRequest = function(local) {
-		
-		return API_URL + "include_entities=true&include_rts=true" +
-			"&screen_name=" + local.screen_name + "&count=" + local.tweetcount;
+	buildRequest = function(tweetreq) {
+
+		return API_URL + "include_entities=true&include_rts=true"
+			+ "&screen_name=" + tweetreq.screen_name + "&count=" + tweetreq.tweetcount;
 
 	}
 
@@ -49,28 +48,34 @@ var TWEETS = (function (username) {
 	 * feed was cached in localStore for further
 	 * requestes to the same feed.
 	 */
-	passTweetToCallback = function(twitterTweets) {
+	cacheTweets = function(twitterTweets) {
 
-		cachedTweets = {}
+		var cachedTweets = {};
 
-		/* Cache the returned Tweets for
+		/* 
+		 * Cache the returned Tweets for
 		 * any other load within 30 minutes. 
 		 */
-
 		cachedTweets.cachetime = new Date().getTime();
 		cachedTweets.tweets = twitterTweets;
-
 		localStorage.setItem('TWEETS', JSON.stringify(cachedTweets));
+
+		/* Call user callback method */
 		userCallback(cachedTweets.tweets);
 
 	}
 
+	/*
+	 * Method takes a userame and a tweet count which is
+	 * used to pull a feed of count tweets. It returns
+	 * the tweets to the provided callback.
+	 */
 	getTweets = function(username, count, callback) {
 
-		var twitter_api_call,
-			twitter_api_url = '',
-			cachedTweets,
-			refreshCacheTime = new Date();
+		var twitter_api_call
+			, twitter_api_url = ''
+			, cachedTweets
+			, refreshCacheTime = new Date();
 
 		/* If user hasn't provided a callback 
 		 * then don't bother and return false
@@ -89,29 +94,27 @@ var TWEETS = (function (username) {
 		if (localStorage.getItem('TWEETS')) {
 
 			/* If the feed hasn't been updated for 3 hours
-			 * then you can refresh it.
-			 */
+			 * then you can refresh it. */
 			refreshCacheTime.setHours(refreshCacheTime.getHours() - 3);
 			cachedTweets = JSON.parse(localStorage.getItem('TWEETS'));
 
+			/* Call the user callback with the cached tweets */
 			if (cachedTweets.cachetime >= refreshCacheTime) {
-				console.log('use local cache');
 				return userCallback(cachedTweets.tweets);
-			}			
+			}
 
 		} 
-
-		console.log("No tweets, let's do this oldschool!");
 		
 		/* Build a TWITTER API request and load it 
 		 * with JSONP and pass the data to the callback */
 		twitter_api_call = buildRequest({ 'screen_name': username, 'tweetcount': count });
-		loadJSONP(twitter_api_call, passTweetToCallback);
+		loadJSONP(twitter_api_call, cacheTweets);
 
-	}
+	};
 
+	/* Provide access to public methods */
 	return {
-		'getTweets': getTweets
+		getTweets: getTweets
 	};
 
 })();
